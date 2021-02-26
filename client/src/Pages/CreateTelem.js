@@ -6,6 +6,8 @@ import Containter from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
 // Icons
 import { BsList } from "react-icons/bs";
+// Axios
+import axios from "axios";
 // Styles
 // import "./../styles/dnd.scss"; // TODO: DOES NOT WORK I SUCK AT STYLING
 
@@ -17,12 +19,14 @@ function CreateTelem() {
   const [name, setName] = useState("");
   // Desc State handler
   const [desc, setDesc] = useState("");
+  // or entry for custom stuff??
+  // const [isGPS, setIsGPS] = useState(false);
   // Item State handler
   const blankItem = {
     name: "",
     length: "",
     unit: "",
-    dataType: "",
+    dataType: dataTypes[0],
     scalar: 1,
   };
   const [ItemState, setItemState] = useState([{ ...blankItem }]);
@@ -45,7 +49,7 @@ function CreateTelem() {
     // Create item to send to backend
     const item = { name: name, desc: desc, values: ItemState };
     // Send to backend
-    console.log(item);
+    axios.post("api/telemItem", item);
   };
   // Drag State
   const initialDnDState = {

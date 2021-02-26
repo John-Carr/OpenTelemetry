@@ -15,6 +15,10 @@ const TelemSchema = new Schema({
     type: Array,
     required: true,
   },
+  decode: {
+    type: String,
+    required: false,
+  },
   created_at: {
     type: Date,
     default: Date.now,
@@ -25,4 +29,4 @@ const TelemSchema = new Schema({
   },
 });
 
-module.exports = Role = mongoose.model("telemItem", TelemSchema);
+module.exports = mongoose.model("telemItem", TelemSchema);

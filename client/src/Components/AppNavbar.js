@@ -2,7 +2,7 @@ import Navbar from "react-bootstrap/Navbar";
 
 function AppNavbar() {
   return (
-    <Navbar bg="light" light expand="md">
+    <Navbar bg="light" expand="md">
       <Navbar.Brand href="/">Telemetry</Navbar.Brand>
       <Navbar.Toggle />
       <Navbar.Collapse className="justify-content-end">

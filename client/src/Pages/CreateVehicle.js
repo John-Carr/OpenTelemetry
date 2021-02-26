@@ -3,16 +3,23 @@ import Button from "react-bootstrap/Button";
 import Containter from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function CreateVehicle() {
-  const options = [1, 2, 3, 4, 5, 6];
+  // const options = [1, 2, 3, 4, 5, 6];
+  const [options, setOptions] = useState([]);
+  useEffect(() => {
+    axios.get("/api/telemItem").then((res) => {
+      setOptions(res.data);
+    });
+  }, []);
   // Name State handler
   const [name, setName] = useState("");
   // Desc State handler
   const [desc, setDesc] = useState("");
   // Item State handler
-  const blankItem = { id: "", name: "" };
+  const blankItem = { id: "", name: "", device: "", deviceKey: "" };
   const [ItemState, setItemState] = useState([{ ...blankItem }]);
 
   const addItem = () => {
@@ -21,8 +28,13 @@ function CreateVehicle() {
   const handleItemChange = (e) => {
     const updatedItems = [...ItemState];
     updatedItems[e.target.dataset.idx][e.target.dataset.nme] = e.target.value;
+    // get the key because using names is bad (Sorry Raymond)
+    console.log(e.target.dataset.nme);
+    if (e.target.dataset.nme === "device") {
+      updatedItems[e.target.dataset.idx]["deviceKey"] =
+        e.target.options[e.target.selectedIndex].dataset.id;
+    }
     setItemState(updatedItems);
-    console.log(updatedItems);
   };
   const handleRemoveItem = (e) => {
     const updatedItems = [...ItemState];
@@ -32,9 +44,9 @@ function CreateVehicle() {
   const submitForm = (e) => {
     e.preventDefault();
     // Create item to send to backend
-    const item = { name: name, desc: desc, telem: ItemState };
+    const item = { name: name, desc: desc, telemItems: ItemState };
     // Send to backend
-    console.log(item);
+    axios.post("api/vehicle", item);
   };
   return (
     <Containter>
@@ -66,13 +78,16 @@ function CreateVehicle() {
             <Form.Label>Id</Form.Label>
           </Col>
           <Col>
+            <Form.Label>Name</Form.Label>
+          </Col>
+          <Col>
             <Form.Label>Device</Form.Label>
           </Col>
           <Col>
             <Form.Label>Delete</Form.Label>
           </Col>
         </Form.Row>
-        {ItemState.map(({ id, val }, i) => (
+        {ItemState.map(({ id, name, device }, i) => (
           <Row style={{ padding: "0.25rem" }}>
             <Col>
               <Form.Control
@@ -80,6 +95,17 @@ function CreateVehicle() {
                 data-idx={i}
                 data-nme="id"
                 placeholder="0xFE"
+                value={id}
+                onChange={handleItemChange}
+              />
+            </Col>
+            <Col>
+              <Form.Control
+                type="text"
+                data-idx={i}
+                data-nme="name"
+                placeholder="Name-0"
+                value={name}
                 onChange={handleItemChange}
               />
             </Col>
@@ -87,12 +113,14 @@ function CreateVehicle() {
               <Form.Control
                 as="select"
                 data-idx={i}
-                data-nme="name"
+                data-nme="device"
+                value={device}
                 onChange={handleItemChange}
               >
-                {options.map((num, i) => (
-                  <option key={i} value={num}>
-                    {num}
+                <option>Choose one</option>
+                {options.map(({ _id, name }, i) => (
+                  <option key={i} data-id={_id} value={name}>
+                    {name}
                   </option>
                 ))}
               </Form.Control>
