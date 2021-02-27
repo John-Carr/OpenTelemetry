@@ -4,6 +4,8 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Containter from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
+// Custom components
+import BitEditModal from "./../Components/BitEditModal";
 // Icons
 import { BsList } from "react-icons/bs";
 // Axios
@@ -12,7 +14,7 @@ import axios from "axios";
 // import "./../styles/dnd.scss"; // TODO: DOES NOT WORK I SUCK AT STYLING
 
 // Types of data we can receive
-const dataTypes = ["signed", "unsigned", "decimal", "enum", "string"];
+const dataTypes = ["custom", "signed", "unsigned", "decimal", "enum", "string"];
 // React page
 function CreateTelem() {
   // Name State handler
@@ -43,6 +45,10 @@ function CreateTelem() {
     const updatedItems = [...ItemState];
     updatedItems.splice(e.target.dataset.idx, 1);
     setItemState(updatedItems);
+  };
+  const handleCustom = (bytes, index) => {
+    console.log(bytes);
+    console.log(index);
   };
   const submitForm = (e) => {
     e.preventDefault();
@@ -180,6 +186,9 @@ function CreateTelem() {
             <Form.Label>Data Type</Form.Label>
           </Col>
           <Col>
+            <Form.Label>Decode</Form.Label>
+          </Col>
+          <Col>
             <Form.Label>Scalar</Form.Label>
           </Col>
           <Col>
@@ -248,6 +257,14 @@ function CreateTelem() {
                   </option>
                 ))}
               </Form.Control>
+            </Col>
+            <Col>
+              <BitEditModal
+                index={i}
+                dataType={dataType}
+                numBytes={length}
+                callback={handleCustom}
+              />
             </Col>
             <Col>
               <Form.Control

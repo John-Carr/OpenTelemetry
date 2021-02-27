@@ -10,13 +10,14 @@
   "author": "Raymond Bernardo",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.19.1",
+    "axios": "^0.21.1",
     "config": "^3.3.1",
-    "serialport": "^9.0.0"
+    "serialport": "^9.0.0",
+    "socket.io-client": "^3.1.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^8.0.1",
+    "mocha": "^8.3.0",
     "mock-http-server": "^1.4.2"
   }
 }

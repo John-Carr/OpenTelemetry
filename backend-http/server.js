@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const config = require("config");
 
 const app = express();
-
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
 //Body parser Middleware
 app.use(express.json());
 
@@ -20,11 +21,14 @@ mongoose
   .then(() => console.log("MongoDB Connected..."))
   .catch((err) => console.log(err));
 
-app.use(express.static("public"));
-
-// Use routes
+// Routes
 app.use("/api/telemItem", require("./routes/api/telemItem"));
 app.use("/api/vehicle", require("./routes/api/vehicle"));
-const port = process.env.PORT || 5000;
 
-app.listen(port, () => console.log(`Server started on port ${port}`));
+// Sockets
+io.on("connection", (socket) => {
+  console.log("A user connected.");
+});
+
+const port = process.env.PORT || 5000;
+http.listen(port, () => console.log(`Server started on port ${port}`));

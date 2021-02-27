@@ -3,12 +3,11 @@ const router = express.Router();
 const TelemItem = require("../../models/TelemItem");
 
 router
-  .route("/:id?")
+  .route("/:id?/:decode?")
   .all()
   .post((req, res) => {
     const { name, desc, values } = req.body;
     TelemItem.findOne({ name: name }).then((item) => {
-      console.log(item);
       if (!item) {
         const newItem = new TelemItem({
           name: name,
@@ -48,6 +47,8 @@ router
         .sort({ name: 1 })
         .then((item) => res.json(item))
         .catch((err) => res.status(404).json({ success: false }));
+    } else if (req.params.decode) {
+      console.log(res.params.decode);
     } else {
       TelemItem.find()
         .sort({ name: 1 })
