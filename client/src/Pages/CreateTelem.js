@@ -29,6 +29,7 @@ function CreateTelem() {
     length: "",
     unit: "",
     dataType: dataTypes[0],
+    custom: [], // Holds the MSB and LSB decode stuff, if only one bite then it will only have one element
     scalar: 1,
   };
   const [ItemState, setItemState] = useState([{ ...blankItem }]);
@@ -46,9 +47,16 @@ function CreateTelem() {
     updatedItems.splice(e.target.dataset.idx, 1);
     setItemState(updatedItems);
   };
+  // TODO: Uhhhh this is kinda an anti pattern, I did not intend it but the modal wont be update if you reopen it...
+  // Should change modal to use the array from here instead of having its own state... ooops :(
+  // Will fix this later
   const handleCustom = (bytes, index) => {
-    console.log(bytes);
-    console.log(index);
+    const updatedItems = [...ItemState];
+    updatedItems[index].custom.push(bytes[0]);
+    if (bytes.length > 1) {
+      updatedItems[index].custom.push(bytes[bytes.length - 1]);
+    }
+    setItemState(updatedItems);
   };
   const submitForm = (e) => {
     e.preventDefault();

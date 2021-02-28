@@ -39,9 +39,44 @@ function handleTransmission(data) {
       // check if the shit is GPS cause that aint in yet
       // decode the rest of the data
       for (let val in res.data.values) {
-        let { length, dataType, scalar, name } = res.data.values[val];
+        let { length, dataType, scalar, name, custom } = res.data.values[val];
         let res = 0;
-        if (length === 2 && dataType === "unsigned") {
+        // check if the value is custom and needs to be bit modified
+        if (custom.length > 0) {
+          // check to see if we are dealing with one byte
+          if (custom.length === 1) {
+            //Deal with the byte
+            res = res & custom[0];
+          } else {
+            // determine the amount we need to shift
+            let shift = custom[0].toString(2).match(/1/g).length;
+            // we update index here but need to ensure that the MSB is either all used (used or dont care)
+            // or we keep index at the same size
+            // TODO does not handle dont cares they must be zero padded
+            // TODO needs to be tested
+            res = data[index] >> (8 - shift);
+            index++;
+            for (let i = 1; i < length; i++) {
+              // handle msb
+              if (i === length - 1) {
+                res =
+                  ((data[index] & custom[custom.length - 1]) <<
+                    (8 * i - (8 - shift))) |
+                  res;
+              }
+              // handle all the bytes in between
+              else {
+                res = (data[index] << (8 * i - (8 - shift))) | res;
+              }
+              index++;
+            }
+            // if full last byte is not used then decrement index TODO byte padding
+            if (custom[0] !== 0xff) {
+              index--;
+            }
+            res = res * scalar;
+          }
+        } else if (length === 2 && dataType === "unsigned") {
           res =
             helper.getWord(dataBuffer[index++], dataBuffer[index++]) * scalar;
         } else if (length === 2 && dataType === "signed") {

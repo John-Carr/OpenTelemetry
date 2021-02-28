@@ -101,7 +101,11 @@ function BitEditModal(props) {
         <Modal.Header closeButton>
           <Modal.Title>Modal heading</Modal.Title>
         </Modal.Header>
-        <Modal.Body>{handleInputField(bytes)}</Modal.Body>
+        <Modal.Body>
+          <h2>LSB</h2>
+          {handleInputField(bytes)}
+          <h2>MSB</h2>
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
