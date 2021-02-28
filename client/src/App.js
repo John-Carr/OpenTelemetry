@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Home from "./Pages/Home";
 import CreateVehicle from "./Pages/CreateVehicle";
 import CreateTelem from "./Pages/CreateTelem";
+import Sessions from "./Pages/Sessions";
 /*
  * Components
  */
@@ -24,6 +25,7 @@ function App() {
             <Route exact path="/" component={Home} />
             <Route exact path="/create-vehicle" component={CreateVehicle} />
             <Route exact path="/create-telem" component={CreateTelem} />
+            <Route exact path="/sessions" component={Sessions} />
           </Switch>
         </>
       </Router>
