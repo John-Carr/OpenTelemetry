@@ -23,5 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 
 # private files
-/config
+/config/*
 bfg.jar
