@@ -11,7 +11,12 @@ const VehicleSchema = new Schema({
     type: String,
     required: true,
   },
-  telemItems: {
+  id: {
+    type: Number,
+    requred: true,
+    unique: true,
+  },
+  telem_items: {
     type: Array,
     required: true,
   },

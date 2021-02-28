@@ -32,7 +32,7 @@ function handleTransmission(data) {
     for (var count = 0; count < dataLen; count++)
       dataBuffer.push(data[currentIndex++]);
     // Get the decode logic for the data
-    axios.get(`api/telemItem/`, address).then((res) => {
+    axios.get(`api/telemItem/6969/${address}`).then((res) => {
       console.log(res);
       let index = 0;
       let resObj = {};

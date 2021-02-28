@@ -18,6 +18,8 @@ function CreateVehicle() {
   const [name, setName] = useState("");
   // Desc State handler
   const [desc, setDesc] = useState("");
+  // ID State handler
+  const [id, setId] = useState("");
   // Item State handler
   const blankItem = { id: "", name: "", device: "", deviceKey: "" };
   const [ItemState, setItemState] = useState([{ ...blankItem }]);
@@ -44,24 +46,42 @@ function CreateVehicle() {
   const submitForm = (e) => {
     e.preventDefault();
     // Create item to send to backend
-    const item = { name: name, desc: desc, telemItems: ItemState };
+    const item = {
+      name: name,
+      desc: desc,
+      id: parseInt(id),
+      telemItems: ItemState,
+    };
     // Send to backend
     axios.post("api/vehicle", item);
   };
   return (
     <Containter>
       <Form>
-        <Form.Group>
-          <Form.Label>Vehicle Name</Form.Label>
-          <Form.Control
-            type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-            }}
-            placeholder="Cielo"
-          />
-        </Form.Group>
+        <Form.Row>
+          <Form.Group>
+            <Form.Label>Vehicle Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+              }}
+              placeholder="Cielo"
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Vehicle Id</Form.Label>
+            <Form.Control
+              type="text"
+              value={id}
+              onChange={(e) => {
+                setId(e.target.value);
+              }}
+              placeholder="0xFF"
+            />
+          </Form.Group>
+        </Form.Row>
         <Form.Group>
           <Form.Label>Vehicle Description</Form.Label>
           <Form.Control
@@ -91,6 +111,7 @@ function CreateVehicle() {
           <Row style={{ padding: "0.25rem" }}>
             <Col>
               <Form.Control
+                key={i}
                 type="text"
                 data-idx={i}
                 data-nme="id"

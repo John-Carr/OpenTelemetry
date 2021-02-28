@@ -21,6 +21,7 @@ function CreateTelem() {
   const [name, setName] = useState("");
   // Desc State handler
   const [desc, setDesc] = useState("");
+  const [decodeId, setId] = useState("");
   // or entry for custom stuff??
   // const [isGPS, setIsGPS] = useState(false);
   // Item State handler
@@ -61,7 +62,12 @@ function CreateTelem() {
   const submitForm = (e) => {
     e.preventDefault();
     // Create item to send to backend
-    const item = { name: name, desc: desc, values: ItemState };
+    const item = {
+      name: name,
+      desc: desc,
+      decodeId: parseInt(decodeId),
+      values: ItemState,
+    };
     // Send to backend
     axios.post("api/telemItem", item);
   };
@@ -155,17 +161,31 @@ function CreateTelem() {
   return (
     <Containter>
       <Form>
-        <Form.Group>
-          <Form.Label>Item Name</Form.Label>
-          <Form.Control
-            type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-            }}
-            placeholder="Orion BMS 3"
-          />
-        </Form.Group>
+        <Form.Row>
+          <Form.Group>
+            <Form.Label>Item Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+              }}
+              placeholder="Orion BMS 3"
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Decode Id</Form.Label>
+            <Form.Control
+              type="text"
+              value={decodeId}
+              onChange={(e) => {
+                setId(e.target.value);
+              }}
+              placeholder="0xFF"
+            />
+          </Form.Group>
+        </Form.Row>
+
         <Form.Group>
           <Form.Label>Item Description</Form.Label>
           <Form.Control
@@ -298,6 +318,15 @@ function CreateTelem() {
         <br />
         <Button variant="primary" type="submit" onClick={submitForm}>
           Submit
+        </Button>
+        <Button
+          onClick={() =>
+            axios.get(`api/telemItem/6969/1`).then((res) => {
+              console.log(res);
+            })
+          }
+        >
+          PressMe
         </Button>
       </Form>
     </Containter>

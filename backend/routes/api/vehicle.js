@@ -6,13 +6,14 @@ router
   .route("/:id?")
   .all()
   .post((req, res) => {
-    const { name, desc, telemItems } = req.body;
+    const { name, desc, telemItems, id } = req.body;
     Vehicle.findOne({ name: name }).then((item) => {
       if (!item) {
         const newItem = new Vehicle({
           name: name,
           description: desc,
-          values: telemItems,
+          id: id,
+          telem_items: telemItems,
         });
         newItem
           .save()

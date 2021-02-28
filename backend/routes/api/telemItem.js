@@ -6,13 +6,14 @@ router
   .route("/:id?/:decode?")
   .all()
   .post((req, res) => {
-    const { name, desc, values } = req.body;
+    const { name, desc, values, decodeId } = req.body;
     TelemItem.findOne({ name: name }).then((item) => {
       if (!item) {
         const newItem = new TelemItem({
           name: name,
           description: desc,
           values: values,
+          decode_id: decodeId,
         });
         newItem
           .save()
@@ -42,13 +43,15 @@ router
     });
   })
   .get((req, res) => {
-    if (req.params.id) {
+    if (req.params.id && req.params.decode) {
+      TelemItem.findOne({ decode_id: req.params.decode }).then((item) => {
+        res.status(200).json(item);
+      });
+    } else if (req.params.id) {
       TelemItem.findById(req.params.id)
         .sort({ name: 1 })
         .then((item) => res.json(item))
         .catch((err) => res.status(404).json({ success: false }));
-    } else if (req.params.decode) {
-      console.log(res.params.decode);
     } else {
       TelemItem.find()
         .sort({ name: 1 })

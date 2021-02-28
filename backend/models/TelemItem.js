@@ -15,9 +15,10 @@ const TelemSchema = new Schema({
     type: Array,
     required: true,
   },
-  decode: {
+  decode_id: {
     type: String,
     required: false,
+    unique: true,
   },
   created_at: {
     type: Date,
