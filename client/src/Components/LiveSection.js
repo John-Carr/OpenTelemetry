@@ -36,8 +36,8 @@ function LiveSection(props) {
     },
     series: [
       {
-        name: "Pounds",
-        data: [30, 40, 45, 50, 49, 60, 70, 91],
+        name: "data",
+        data: [],
       },
     ],
   };
@@ -48,25 +48,21 @@ function LiveSection(props) {
     });
   }, [props.id]);
   return (
-    <Container fluid>
+    <Container fluid="md">
       <h1>{props.name}</h1>
       <div className="row row-cols-1 row-cols-md-2 g-4">
         {fields.map(({ name }, i) => {
           // this is annoying I couldn't get this to copy any other way
           const graphOptions = JSON.parse(JSON.stringify(defaultOptions));
           graphOptions.options.title.text = name;
-          graphOptions.options.chart.id = `chart-${i}`;
-          console.log(props.item[name]);
+          graphOptions.options.chart.id = `${props.name}-${name}`;
+          // console.log(toString(props.item[name]));
+          // console.log("Render");
           return (
             <Card key={i}>
               <Chart
                 options={graphOptions.options}
-                series={
-                  graphOptions.series
-                  //   props.item[name] > 0
-                  //     ? { name: name, data: props.item[name] }
-                  //     : { name: name, data: [] }
-                }
+                series={graphOptions.series}
                 type="line"
                 width="100%"
               />

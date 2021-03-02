@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import io from "socket.io-client";
 import { useParams } from "react-router-dom";
-import GPS from "./../Components/DataViews/GPS";
-import LiveSection from "./../Components/LiveSection";
+import GPS from "../Components/DataViews/GPS";
+import LiveSection from "../Components/LiveSection";
 import axios from "axios";
+import ApexCharts from "apexcharts";
+
+// TODO: This is extremly poorly optimized, the data does not need to be added to the state.
+
 const initialState = { telemItems: [] };
 function reducer(state, action) {
   switch (action.type) {
@@ -15,16 +19,15 @@ function reducer(state, action) {
       throw new Error();
   }
 }
+var testData = [];
+var dataIndex = 0;
 const handleNewData = (state, data) => {
-  // make copy of state
-  let updatedTelemItems = [...state.telemItems];
-
   // find item that matches the rx id
   let targetItem;
   let i;
-  for (i = 0; i < updatedTelemItems.length; i++) {
-    if (parseInt(updatedTelemItems[i].id) === parseInt(data.id)) {
-      targetItem = updatedTelemItems[i];
+  for (i = 0; i < state.telemItems.length; i++) {
+    if (parseInt(state.telemItems[i].id) === parseInt(data.id)) {
+      targetItem = state.telemItems[i];
     }
   }
   if (!targetItem) {
@@ -36,15 +39,22 @@ const handleNewData = (state, data) => {
     if (!targetItem.hasOwnProperty(key)) {
       targetItem[key] = [];
     }
-    targetItem[key].push([data.time, data.data[key]]);
+    targetItem[key].push([new Date(data.time), data.data[key]]);
+    ApexCharts.exec(`${targetItem.name}-${key}`, "updateSeries", [
+      {
+        data: targetItem[key],
+      },
+    ]);
   }
   // Update the item in state
-  console.log(updatedTelemItems);
-  if (!updatedTelemItems) {
+  // console.log(state.telemItems);
+  if (!state.telemItems) {
     console.log("cancel");
     return;
   }
-  return updatedTelemItems;
+  testData.push([new Date(), dataIndex++]);
+
+  return state.telemItems;
 };
 function LiveTelem() {
   // Get Room we need to join
@@ -55,7 +65,6 @@ function LiveTelem() {
     // Get the telem Items we need to sections for
     axios.get(`/api/vehicle/6969/${vehicle}`).then((res) => {
       // Add empty data fields to state
-      console.log(res.data);
       let { telem_items } = res.data;
       dispatch({ type: "init", payload: telem_items });
     });

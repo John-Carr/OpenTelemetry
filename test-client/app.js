@@ -33,8 +33,8 @@ var MPPT0_Data = JSON.parse(JSON.stringify(MPPT_temp));
 var MPPT1_Data = JSON.parse(JSON.stringify(MPPT_temp));
 // going to emit stuff to see on the front end
 MPPT0 = setInterval(() => emitData(socket, MPPT0_Data, 1), 5000);
-MPPT1 = setInterval(() => emitData(socket, MPPT1_Data, 2), 5000);
-BMS = setInterval(() => emitData(socket, BMS_Data, 3), 5000);
+MPPT1 = setInterval(() => emitData(socket, MPPT1_Data, 2), 15000);
+BMS = setInterval(() => emitData(socket, BMS_Data, 3), 15000);
 //
 const emitData = (socket, template, id) => {
   let room = 1;
