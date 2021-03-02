@@ -3,7 +3,7 @@ const router = express.Router();
 const Vehicle = require("../../models/Vehicle");
 
 router
-  .route("/:id?")
+  .route("/:id?/:decode?")
   .all()
   .post((req, res) => {
     const { name, desc, telemItems, id } = req.body;
@@ -43,7 +43,11 @@ router
     });
   })
   .get((req, res) => {
-    if (req.params.id) {
+    if (req.params.id && req.params.decode) {
+      Vehicle.findOne({ id: req.params.decode }).then((item) => {
+        res.status(200).json(item);
+      });
+    } else if (req.params.id) {
       Vehicle.findById(req.params.id)
         .sort({ name: 1 })
         .then((item) => res.json(item))

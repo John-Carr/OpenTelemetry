@@ -1,13 +1,8 @@
 const { default: axios } = require("axios");
+const io = require("socket.io-client");
+const socket = io(`http://localhost:5000/live`);
 const dataLink = require("./dataLink");
 const helper = require("./lib/helper");
-const bms = require("./lib/bms");
-const gps = require("./lib/gps");
-const imu = require("./lib/imu");
-const mitsubaF0 = require("./lib/mitsubaFrame0");
-const mitsubaF1 = require("./lib/mitsubaFrame1");
-const mitsubaF2 = require("./lib/mitsubaFrame2");
-const proton1 = require("./lib/proton1");
 
 /**
  * Handles a raw transmission from the data link layer and does needed calls
@@ -89,6 +84,13 @@ function handleTransmission(data) {
         resObj[name] = res;
       }
       // emit a socket event that we have new data
+      // TODO need the car address
+      socket.emit("new data", {
+        id: ID,
+        data: resObj,
+        time: new Date(),
+        room: 1,
+      });
     });
     //check to see if addresses have been found & POST the data accordingly
     // if (bms.check(address, ID, dataBuffer)) {
