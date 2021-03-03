@@ -3,7 +3,9 @@ import React, { useEffect, useState } from "react";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
-
+// Custom Components
+import EditModal from "./../Components/Common/EditModal";
+import VehicleForm from "./../Pages/VehicleForm";
 function ViewVehicles() {
   const [vehicles, setVehicles] = useState([]);
   useEffect(() => {
@@ -12,11 +14,21 @@ function ViewVehicles() {
     });
   }, []);
   const handleDelete = (e) => {
-    axios.delete(`/api/vehicle/${e.target.dataset._id}`).then((res) => {
+    axios.delete(`api/vehicle/${e.target.dataset.id}`).then((res) => {
       let updatedItems = [...vehicles];
-      updatedItems.filter((item) => item._id !== res.data._id);
+      updatedItems = updatedItems.filter((item) => item._id !== res.data._id);
       setVehicles(updatedItems);
     });
+  };
+  const updateList = (updatedItem) => {
+    let updatedItems = [...vehicles];
+    let i = updatedItems.findIndex((item) => item._id === updatedItem._id);
+    if (i === -1) {
+      updatedItems.push(updatedItem);
+    } else {
+      updatedItems[i] = updatedItem;
+    }
+    setVehicles(updatedItems);
   };
   return (
     <Table striped bordered hover>
@@ -34,7 +46,9 @@ function ViewVehicles() {
             <td>{item.id}</td>
             <td>{item.description}</td>
             <td>
-              <Button variant="primary">Edit</Button>
+              <EditModal>
+                <VehicleForm item={item} callback={updateList} />
+              </EditModal>
             </td>
             <td>
               <Button

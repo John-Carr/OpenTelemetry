@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const VehicleSchema = new Schema({
-  _id: {
+  id: {
     type: Number,
     requred: true,
     unique: true,

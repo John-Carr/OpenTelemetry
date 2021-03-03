@@ -16,7 +16,7 @@ function VehicleForm(props) {
     });
   }, []);
   const blankForm = {
-    _id: "",
+    id: "",
     name: "",
     description: "",
     telem_items: [],
@@ -32,7 +32,7 @@ function VehicleForm(props) {
   const [form, setForm] = useState(setInitialState);
   const handleFormItemUpdate = (e) => {
     // check if the field is an ID field if so make sure that the input is a number
-    if (e.target.dataset.nme.search("id")) {
+    if (e.target.dataset.nme === "id") {
       if (!isHexOrDec(e.target.value)) {
         return;
       }
@@ -77,14 +77,29 @@ function VehicleForm(props) {
     });
     // Parse int for the car ID
     let item = {
-      _id: parseInt(form._id),
+      id: parseInt(form.id),
       name: form.name,
       description: form.description,
       telem_items: form.telem_items,
     };
     // Send to backend
-    console.log(item);
-    // axios.post("api/vehicle", item);
+    if (props.item) {
+      axios.put("api/vehicle", item).then((res) => {
+        if (props.callback) {
+          props.callback(res.data.data);
+        }
+      });
+    } else {
+      axios
+        .post("api/vehicle", item)
+        .then((res) => {
+          // on success
+          setForm({ ...blankForm });
+        })
+        .catch((err) => {
+          console.log(err.response.data);
+        });
+    }
   };
   return (
     <Containter>
@@ -94,8 +109,8 @@ function VehicleForm(props) {
             <Form.Label>Vehicle Id</Form.Label>
             <Form.Control
               type="text"
-              data-nme="_id"
-              value={form._id}
+              data-nme="id"
+              value={form.id}
               onChange={handleFormItemUpdate}
               placeholder="0xFF"
             />
@@ -122,18 +137,11 @@ function VehicleForm(props) {
           />
         </Form.Group>
         <Form.Row>
-          <Col>
-            <Form.Label>Id</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Name</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Device</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Delete</Form.Label>
-          </Col>
+          {["Id", "Name", "Device", "Delete"].map((item, i) => (
+            <Col key={i}>
+              <Form.Label>{item}</Form.Label>
+            </Col>
+          ))}
         </Form.Row>
         {form.telem_items.map(({ id, name, device }, i) => (
           <Row key={i} style={{ padding: "0.25rem" }}>
@@ -166,8 +174,8 @@ function VehicleForm(props) {
                 onChange={handleItemChange}
               >
                 <option>Choose one</option>
-                {options.map(({ _id, name }, i) => (
-                  <option key={i} data-id={_id} value={name}>
+                {options.map(({ id, name }, i) => (
+                  <option key={i} data-id={id} value={name}>
                     {name}
                   </option>
                 ))}
