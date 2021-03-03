@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-// Bootsrap stuffs
+// Bootstrap stuffs
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Containter from "react-bootstrap/Container";
 import Col from "react-bootstrap/Col";
+import Alert from "react-bootstrap/Alert";
 // Custom components
 import BitEditModal from "./../Components/BitEditModal";
 // Icons
@@ -17,13 +18,15 @@ import axios from "axios";
 const dataTypes = ["custom", "signed", "unsigned", "decimal", "enum", "string"];
 // React page
 function CreateTelem() {
+  // Alert State
+  const [alert, setAlert] = useState({ show: false, style: "success" });
   // Name State handler
   const [name, setName] = useState("");
   // Desc State handler
   const [desc, setDesc] = useState("");
   const [decodeId, setId] = useState("");
   // or entry for custom stuff??
-  // const [isGPS, setIsGPS] = useState(false);
+  const [iso, setISO] = useState("");
   // Item State handler
   const blankItem = {
     name: "",
@@ -59,6 +62,14 @@ function CreateTelem() {
     }
     setItemState(updatedItems);
   };
+  const handleISO = (e) => {
+    if (e.target.checked) {
+      setISO(e.target.dataset.fmt);
+    } else {
+      setISO("");
+    }
+    setItemState([]);
+  };
   const submitForm = (e) => {
     e.preventDefault();
     // Create item to send to backend
@@ -67,9 +78,34 @@ function CreateTelem() {
       desc: desc,
       decodeId: parseInt(decodeId),
       values: ItemState,
+      iso: iso,
     };
+    if (iso) {
+      if (iso === "GPS") {
+        item.values.push({ name: "lat", length: 2, dataType: [0] });
+        item.values.push({ name: "lng", length: 2, dataType: [0] });
+      }
+    }
     // Send to backend
-    axios.post("api/telemItem", item);
+    axios
+      .post("api/telemItem", item)
+      .then((res) => {
+        if (res.data.success) {
+          // Clear State
+          setName("");
+          setDesc("");
+          setId("");
+          setItemState("");
+          // Alert that the Item was saved correctly
+          setAlert({ show: true, style: "success" });
+        } else {
+          setAlert({ show: true, style: "danger" });
+        }
+      })
+      .catch((err) => {
+        console.log(err.response);
+        setAlert({ show: true, style: "danger" });
+      });
   };
   // Drag State
   const initialDnDState = {
@@ -160,6 +196,14 @@ function CreateTelem() {
   };
   return (
     <Containter>
+      <Alert
+        show={alert.show}
+        variant={alert.status}
+        onClose={() => setAlert({ show: false, status: "success" })}
+        dismissible
+      >
+        Item Saved
+      </Alert>
       <Form>
         <Form.Row>
           <Form.Group>
@@ -184,6 +228,23 @@ function CreateTelem() {
               placeholder="0xFF"
             />
           </Form.Group>
+          <Form.Group style={{ marginLeft: "1rem" }}>
+            <Form.Label style={{ marginBottom: "1rem" }}>
+              ISO Formats
+            </Form.Label>
+            <br />
+            {["GPS"].map((item, i) => (
+              <Form.Check
+                key={i}
+                inline
+                label={item}
+                type="checkbox"
+                checked={iso === item}
+                data-fmt={item}
+                onChange={handleISO}
+              />
+            ))}
+          </Form.Group>
         </Form.Row>
 
         <Form.Group>
@@ -198,30 +259,20 @@ function CreateTelem() {
           />
         </Form.Group>
         <Form.Row>
-          <Col>
-            <Form.Label>Order</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Name</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Bytes</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Units</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Data Type</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Decode</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Scalar</Form.Label>
-          </Col>
-          <Col>
-            <Form.Label>Delete</Form.Label>
-          </Col>
+          {[
+            "Order",
+            "Name",
+            "Bytes",
+            "Units",
+            "Data Type",
+            "Decode",
+            "Scalar",
+            "Delete",
+          ].map((item, i) => (
+            <Col key={i}>
+              <Form.Label>{item}</Form.Label>
+            </Col>
+          ))}
         </Form.Row>
         {ItemState.map(({ name, length, unit, dataType, scalar }, i) => (
           <Form.Row
@@ -236,7 +287,6 @@ function CreateTelem() {
           >
             <Col sm>
               <BsList />
-              <h2>{`Value ${i}`}</h2>
             </Col>
             <Col>
               <Form.Control
@@ -312,21 +362,12 @@ function CreateTelem() {
             </Col>
           </Form.Row>
         ))}
-        <Button variant="success" onClick={addItem}>
+        <Button variant="success" onClick={addItem} disabled={iso !== ""}>
           New Value
         </Button>
         <br />
         <Button variant="primary" type="submit" onClick={submitForm}>
           Submit
-        </Button>
-        <Button
-          onClick={() =>
-            axios.get(`api/telemItem/6969/1`).then((res) => {
-              console.log(res);
-            })
-          }
-        >
-          PressMe
         </Button>
       </Form>
     </Containter>

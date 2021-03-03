@@ -30,29 +30,36 @@ const handleNewData = (state, data) => {
       targetItem = state.telemItems[i];
     }
   }
-  if (!targetItem) {
-    console.log("F");
-    return;
-  }
-  // Check to see if we have create an array yet
-  for (let key in data.data) {
-    if (!targetItem.hasOwnProperty(key)) {
-      targetItem[key] = [];
+  if (targetItem.iso && targetItem.iso === "GPS") {
+    targetItem.lat = data.data.lat;
+    targetItem.lng = data.data.lng;
+    targetItem.speed = data.data.speed;
+    targetItem.heading = data.data.heading;
+  } else {
+    if (!targetItem) {
+      console.log("F");
+      return;
     }
-    targetItem[key].push([new Date(data.time), data.data[key]]);
-    ApexCharts.exec(`${targetItem.name}-${key}`, "updateSeries", [
-      {
-        data: targetItem[key],
-      },
-    ]);
+    // Check to see if we have created an array yet
+    for (let key in data.data) {
+      if (!targetItem.hasOwnProperty(key)) {
+        targetItem[key] = [];
+      }
+      targetItem[key].push([new Date(data.time), data.data[key]]);
+      ApexCharts.exec(`${targetItem.name}-${key}`, "updateSeries", [
+        {
+          data: targetItem[key],
+        },
+      ]);
+    }
+    // Update the item in state
+    // console.log(state.telemItems);
+    if (!state.telemItems) {
+      console.log("cancel");
+      return;
+    }
+    testData.push([new Date(), dataIndex++]);
   }
-  // Update the item in state
-  // console.log(state.telemItems);
-  if (!state.telemItems) {
-    console.log("cancel");
-    return;
-  }
-  testData.push([new Date(), dataIndex++]);
 
   return state.telemItems;
 };

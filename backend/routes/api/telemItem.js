@@ -7,6 +7,10 @@ router
   .all()
   .post((req, res) => {
     const { name, desc, values, decodeId } = req.body;
+    if (!name || desc || values || decodeId) {
+      res.status(400);
+      return;
+    }
     TelemItem.findOne({ name: name }).then((item) => {
       if (!item) {
         const newItem = new TelemItem({
@@ -34,6 +38,7 @@ router
             });
           });
       } else {
+        console.log("Here");
         res.status(400).json({
           data: null,
           success: true,

@@ -32,6 +32,38 @@ function handleTransmission(data) {
       let index = 0;
       let resObj = {};
       // check if the shit is GPS cause that aint in yet
+      if (res.data.iso) {
+        if (res.data.iso === "GPS") {
+          var gpsString = "";
+          for (var index = 0; index < data.length; index++)
+            gpsString += String.fromCharCode(data[index]);
+          //var gpsString = data.join('')
+          var values = gpsString.split(",");
+
+          //north and east is positive
+          var longitudeStr = values[1];
+          var latitudeStr = values[0];
+
+          var longitude = String(
+            parseFloat(longitudeStr) *
+              (longitudeStr[longitudeStr.length - 1] == "W" ? -1 : 1)
+          );
+          var latitude = String(
+            parseFloat(latitudeStr) *
+              (latitudeStr[latitudeStr.length - 1] == "S" ? -1 : 1)
+          );
+          var speed = parseFloat(values[2]);
+          var heading = parseFloat(values[3]);
+          socket.emit("new data", {
+            ID: ID,
+            longitude: helper.DDMtoDD(longitude),
+            latitude: helper.DDMtoDD(latitude),
+            speed: speed,
+            heading: heading,
+          });
+          return;
+        }
+      }
       // decode the rest of the data
       for (let val in res.data.values) {
         let { length, dataType, scalar, name, custom } = res.data.values[val];
