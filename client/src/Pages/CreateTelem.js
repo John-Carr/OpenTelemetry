@@ -7,6 +7,7 @@ import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
 // Custom components
 import BitEditModal from "./../Components/BitEditModal";
+import DragAndDrop from "./../Components/Common/DragAndDrop";
 // Icons
 import { BsList } from "react-icons/bs";
 // Axios
@@ -107,93 +108,6 @@ function CreateTelem() {
         setAlert({ show: true, style: "danger" });
       });
   };
-  // Drag State
-  const initialDnDState = {
-    draggedFrom: null,
-    draggedTo: null,
-    isDragging: false,
-    originalOrder: [],
-    updatedOrder: [],
-  };
-  const [dragAndDrop, setDragAndDrop] = React.useState(initialDnDState);
-  // Drag functions
-  const onDragStart = (e) => {
-    // We'll access the "data-position" attribute
-    // of the current element dragged
-    const initialPosition = Number(e.currentTarget.dataset.idx);
-    setDragAndDrop({
-      // we spread the previous content
-      // of the hook variable
-      // so we don't override the properties
-      // not being updated
-      ...dragAndDrop,
-
-      draggedFrom: initialPosition, // set the draggedFrom position
-      isDragging: true,
-      originalOrder: ItemState, // store the current state of "list"
-    });
-
-    // Note: this is only for Firefox.
-    // Without it, the DnD won't work.
-    // But we are not using it.
-    e.dataTransfer.setData("text/html", "");
-  };
-
-  const onDragOver = (event) => {
-    event.preventDefault();
-
-    // Store the content of the original list
-    // in this variable that we'll update
-    let newList = dragAndDrop.originalOrder;
-
-    // index of the item being dragged
-    const draggedFrom = dragAndDrop.draggedFrom;
-
-    // index of the drop area being hovered
-    const draggedTo = Number(event.currentTarget.dataset.idx);
-
-    // get the element that's at the position of "draggedFrom"
-    const itemDragged = newList[draggedFrom];
-    // filter out the item being dragged
-    const remainingItems = newList.filter(
-      (item, index) => index !== draggedFrom
-    );
-
-    // update the list
-    newList = [
-      ...remainingItems.slice(0, draggedTo),
-      itemDragged,
-      ...remainingItems.slice(draggedTo),
-    ];
-    // since this event fires many times
-    // we check if the targets are actually
-    // different:
-    if (draggedTo !== dragAndDrop.draggedTo) {
-      setDragAndDrop({
-        ...dragAndDrop,
-
-        // save the updated list state
-        // we will render this onDrop
-        updatedOrder: newList,
-        draggedTo: draggedTo,
-      });
-    }
-  };
-
-  const onDrop = () => {
-    // we use the updater function
-    // for the "list" hook
-    setItemState(dragAndDrop.updatedOrder);
-
-    // and reset the state of
-    // the DnD
-    setDragAndDrop({
-      ...dragAndDrop,
-      draggedFrom: null,
-      draggedTo: null,
-      isDragging: false,
-    });
-  };
   return (
     <Containter>
       <Alert
@@ -274,94 +188,96 @@ function CreateTelem() {
             </Col>
           ))}
         </Form.Row>
-        {ItemState.map(({ name, length, unit, dataType, scalar }, i) => (
-          <Form.Row
-            key={i}
-            data-idx={i}
-            draggable="true"
-            onDragStart={onDragStart}
-            onDragOver={onDragOver}
-            onDrop={onDrop}
-            style={{ padding: "0.25rem" }}
-            className="DragableListItem"
-          >
-            <Col sm>
-              <BsList />
-            </Col>
-            <Col>
-              <Form.Control
-                data-idx={i}
-                data-nme="name"
-                type="text"
-                value={name}
-                placeholder="Battery Voltage"
-                className="name"
-                onChange={handleItemChange}
-              />
-            </Col>
-            <Col>
-              <Form.Control
-                data-idx={i}
-                data-nme="length"
-                type="number"
-                value={length}
-                placeholder="2"
-                className="length"
-                onChange={handleItemChange}
-              />
-            </Col>
-            <Col>
-              <Form.Control
-                data-idx={i}
-                data-nme="unit"
-                type="text"
-                value={unit}
-                placeholder="V"
-                className="unit"
-                onChange={handleItemChange}
-              />
-            </Col>
-            <Col>
-              <Form.Control
-                as="select"
-                data-idx={i}
-                data-nme="dataType"
-                onChange={handleItemChange}
-                value={dataType}
-              >
-                {dataTypes.map((num, i) => (
-                  <option key={i} value={num}>
-                    {num}
-                  </option>
-                ))}
-              </Form.Control>
-            </Col>
-            <Col>
-              <BitEditModal
-                index={i}
-                dataType={dataType}
-                numBytes={length}
-                callback={handleCustom}
-              />
-            </Col>
-            <Col>
-              <Form.Control
-                data-idx={i}
-                data-nme="scalar"
-                type="number"
-                value={scalar}
-                placeholder="2"
-                className="length"
-                onChange={handleItemChange}
-              />
-            </Col>
-            <Col>
-              <Button variant="danger" data-idx={i} onClick={handleRemoveItem}>
-                Button
-              </Button>
-            </Col>
-          </Form.Row>
-        ))}
+        <DragAndDrop ItemState={ItemState} setItemState={setItemState}>
+          {ItemState.map(({ name, length, unit, dataType, scalar }, i) => (
+            <Form.Row
+              key={i}
+              data-idx={i}
+              style={{ padding: "0.25rem" }}
+              className="DragableListItem"
+            >
+              <Col sm>
+                <BsList />
+              </Col>
+              <Col>
+                <Form.Control
+                  data-idx={i}
+                  data-nme="name"
+                  type="text"
+                  value={name}
+                  placeholder="Battery Voltage"
+                  className="name"
+                  onChange={handleItemChange}
+                />
+              </Col>
+              <Col>
+                <Form.Control
+                  data-idx={i}
+                  data-nme="length"
+                  type="number"
+                  value={length}
+                  placeholder="2"
+                  className="length"
+                  onChange={handleItemChange}
+                />
+              </Col>
+              <Col>
+                <Form.Control
+                  data-idx={i}
+                  data-nme="unit"
+                  type="text"
+                  value={unit}
+                  placeholder="V"
+                  className="unit"
+                  onChange={handleItemChange}
+                />
+              </Col>
+              <Col>
+                <Form.Control
+                  as="select"
+                  data-idx={i}
+                  data-nme="dataType"
+                  onChange={handleItemChange}
+                  value={dataType}
+                >
+                  {dataTypes.map((num, i) => (
+                    <option key={i} value={num}>
+                      {num}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Col>
+              <Col>
+                <BitEditModal
+                  index={i}
+                  dataType={dataType}
+                  numBytes={length}
+                  callback={handleCustom}
+                />
+              </Col>
+              <Col>
+                <Form.Control
+                  data-idx={i}
+                  data-nme="scalar"
+                  type="number"
+                  value={scalar}
+                  placeholder="2"
+                  className="length"
+                  onChange={handleItemChange}
+                />
+              </Col>
+              <Col>
+                <Button
+                  variant="danger"
+                  data-idx={i}
+                  onClick={handleRemoveItem}
+                >
+                  Button
+                </Button>
+              </Col>
+            </Form.Row>
+          ))}
+        </DragAndDrop>
         <Button variant="success" onClick={addItem} disabled={iso !== ""}>
           New Value
         </Button>
