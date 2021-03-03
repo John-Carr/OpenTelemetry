@@ -5,80 +5,109 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
-function CreateVehicle() {
-  // const options = [1, 2, 3, 4, 5, 6];
+// Utils
+import { isHexOrDec } from "./../Utils/numbers";
+function VehicleForm(props) {
+  // Telemetry Item Options
   const [options, setOptions] = useState([]);
   useEffect(() => {
     axios.get("/api/telemItem").then((res) => {
       setOptions(res.data);
     });
   }, []);
-  // Name State handler
-  const [name, setName] = useState("");
-  // Desc State handler
-  const [desc, setDesc] = useState("");
-  // ID State handler
-  const [id, setId] = useState("");
-  // Item State handler
-  const blankItem = { id: "", name: "", device: "", deviceKey: "" };
-  const [ItemState, setItemState] = useState([{ ...blankItem }]);
-
-  const addItem = () => {
-    setItemState([...ItemState, { ...blankItem }]);
+  const blankForm = {
+    _id: "",
+    name: "",
+    description: "",
+    telem_items: [],
   };
+  const blankItem = { id: "", name: "", device: "", deviceKey: "" };
+  const setInitialState = () => {
+    if (props.item) {
+      return { ...props.item };
+    } else {
+      return { ...blankForm };
+    }
+  };
+  const [form, setForm] = useState(setInitialState);
+  const handleFormItemUpdate = (e) => {
+    // check if the field is an ID field if so make sure that the input is a number
+    if (e.target.dataset.nme.search("id")) {
+      if (!isHexOrDec(e.target.value)) {
+        return;
+      }
+    }
+    let updatedForm = { ...form };
+    updatedForm[e.target.dataset.nme] = e.target.value;
+    setForm(updatedForm);
+  };
+  const addItem = () => {
+    let updatedForm = { ...form };
+    updatedForm.telem_items.push({ ...blankItem });
+    setForm(updatedForm);
+  };
+
   const handleItemChange = (e) => {
-    const updatedItems = [...ItemState];
-    updatedItems[e.target.dataset.idx][e.target.dataset.nme] = e.target.value;
-    // get the key because using names is bad (Sorry Raymond)
-    console.log(e.target.dataset.nme);
+    // check if the field is an ID field if so make sure that the input is a number
+    if (e.target.dataset.nme === "id") {
+      if (!isHexOrDec(e.target.value)) {
+        return;
+      }
+    }
+    const updatedForm = { ...form };
+    updatedForm.telem_items[e.target.dataset.idx][e.target.dataset.nme] =
+      e.target.value;
     if (e.target.dataset.nme === "device") {
-      updatedItems[e.target.dataset.idx]["deviceKey"] =
+      updatedForm.telem_items[e.target.dataset.idx]["deviceKey"] =
         e.target.options[e.target.selectedIndex].dataset.id;
     }
-    setItemState(updatedItems);
+    setForm(updatedForm);
   };
   const handleRemoveItem = (e) => {
-    const updatedItems = [...ItemState];
-    updatedItems.splice(e.target.dataset.idx, 1);
-    setItemState(updatedItems);
+    const updatedForm = { ...form };
+    updatedForm.telem_items.splice(e.target.dataset.idx, 1);
+    setForm(updatedForm);
   };
   const submitForm = (e) => {
     e.preventDefault();
-    // Create item to send to backend
-    const item = {
-      name: name,
-      desc: desc,
-      id: parseInt(id),
-      telemItems: ItemState,
+    // Create Item to be sent to DB
+    // Parse int for items
+    form.telem_items.forEach((item) => {
+      item.id = parseInt(item.id);
+    });
+    // Parse int for the car ID
+    let item = {
+      _id: parseInt(form._id),
+      name: form.name,
+      description: form.description,
+      telem_items: form.telem_items,
     };
     // Send to backend
-    axios.post("api/vehicle", item);
+    console.log(item);
+    // axios.post("api/vehicle", item);
   };
   return (
     <Containter>
       <Form>
         <Form.Row>
           <Form.Group>
-            <Form.Label>Vehicle Name</Form.Label>
-            <Form.Control
-              type="text"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
-              placeholder="Cielo"
-            />
-          </Form.Group>
-          <Form.Group>
             <Form.Label>Vehicle Id</Form.Label>
             <Form.Control
               type="text"
-              value={id}
-              onChange={(e) => {
-                setId(e.target.value);
-              }}
+              data-nme="_id"
+              value={form._id}
+              onChange={handleFormItemUpdate}
               placeholder="0xFF"
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Vehicle Name</Form.Label>
+            <Form.Control
+              type="text"
+              data-nme="name"
+              value={form.name}
+              onChange={handleFormItemUpdate}
+              placeholder="Cielo"
             />
           </Form.Group>
         </Form.Row>
@@ -86,10 +115,9 @@ function CreateVehicle() {
           <Form.Label>Vehicle Description</Form.Label>
           <Form.Control
             as="textarea"
-            value={desc}
-            onChange={(e) => {
-              setDesc(e.target.value);
-            }}
+            data-nme="description"
+            value={form.description}
+            onChange={handleFormItemUpdate}
             placeholder="Whale."
           />
         </Form.Group>
@@ -107,11 +135,10 @@ function CreateVehicle() {
             <Form.Label>Delete</Form.Label>
           </Col>
         </Form.Row>
-        {ItemState.map(({ id, name, device }, i) => (
-          <Row style={{ padding: "0.25rem" }}>
+        {form.telem_items.map(({ id, name, device }, i) => (
+          <Row key={i} style={{ padding: "0.25rem" }}>
             <Col>
               <Form.Control
-                key={i}
                 type="text"
                 data-idx={i}
                 data-nme="id"
@@ -165,4 +192,4 @@ function CreateVehicle() {
   );
 }
 
-export default CreateVehicle;
+export default VehicleForm;

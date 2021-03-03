@@ -9,7 +9,7 @@ function Home() {
         <Card as="a" href={"/create-vehicle"} style={{ cursor: "pointer" }}>
           <Card.Body>Create new vehicle</Card.Body>
         </Card>
-        <Card as="a" href={"/create-vehicle"} style={{ cursor: "pointer" }}>
+        <Card as="a" href={"/view-vehicles"} style={{ cursor: "pointer" }}>
           <Card.Body>Go to existing vehicle(s)</Card.Body>
         </Card>
       </CardDeck>

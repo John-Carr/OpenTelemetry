@@ -3,18 +3,19 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const VehicleSchema = new Schema({
+  _id: {
+    type: Number,
+    requred: true,
+    unique: true,
+  },
   name: {
     type: String,
     required: true,
+    unique: true,
   },
   description: {
     type: String,
     required: true,
-  },
-  id: {
-    type: Number,
-    requred: true,
-    unique: true,
   },
   telem_items: {
     type: Array,
