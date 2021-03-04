@@ -76,7 +76,7 @@ router
       res.status(200).json({
         data: item,
         success: true,
-        msg: "Vehicle updated successfully",
+        msg: "Telemetry item updated successfully",
       });
     });
   })
