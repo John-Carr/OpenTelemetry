@@ -29,9 +29,11 @@ function handleTransmission(data) {
     // Get the decode logic for the data
     axios.get(`api/telemItem/6969/${address}`).then((res) => {
       console.log(res);
+      // Variable for reading the data
       let index = 0;
+      // Object to respond with
       let resObj = {};
-      // check if the shit is GPS cause that aint in yet
+      // check if its a cutom pre implimented decode logic (ISO)
       if (res.data.iso) {
         if (res.data.iso === "GPS") {
           var gpsString = "";
@@ -66,22 +68,32 @@ function handleTransmission(data) {
           return;
         }
       }
-      // decode the rest of the data
+      // decode the data
       for (let val in res.data.values) {
-        let { length, dataType, scalar, name, custom } = res.data.values[val];
+        // destructure the res values
+        let {
+          enumVals,
+          isEnum,
+          signed,
+          padded,
+          format,
+          scalar,
+          name,
+          mask,
+        } = res.data.values[val];
+        // variable for holding the value of that value
         let res = 0;
-        // check if the value is custom and needs to be bit modified
-        if (custom.length > 0) {
-          // check to see if we are dealing with one byte
-          if (custom.length === 1) {
+        // check if the value is unaligned
+        if (format.search("unaligned") >= 0) {
+          // check to see if we are dealing with an unaligned bool
+          if (format.search("bool") >= 0) {
             //Deal with the byte
-            res = res & custom[0];
+            res = res & mask[0];
           } else {
             // determine the amount we need to shift
-            let shift = custom[0].toString(2).match(/1/g).length;
+            let shift = mask[0].toString(2).match(/1/g).length;
             // we update index here but need to ensure that the MSB is either all used (used or dont care)
             // or we keep index at the same size
-            // TODO does not handle dont cares they must be zero padded
             // TODO needs to be tested
             res = data[index] >> (8 - shift);
             index++;
@@ -89,7 +101,7 @@ function handleTransmission(data) {
               // handle msb
               if (i === length - 1) {
                 res =
-                  ((data[index] & custom[custom.length - 1]) <<
+                  ((data[index] & mask[mask.length - 1]) <<
                     (8 * i - (8 - shift))) |
                   res;
               }
@@ -99,21 +111,40 @@ function handleTransmission(data) {
               }
               index++;
             }
-            // if full last byte is not used then decrement index TODO byte padding
-            if (custom[0] !== 0xff) {
+            // if the whole upper byte is used or if padded increment the index
+            if (mask[1] !== 0xff || !padded) {
               index--;
             }
-            res = res * scalar;
+            // If the item is not an enum multiply by the scalar
+            if (!isEnum) {
+              res = res * scalar;
+            }
           }
-        } else if (length === 2 && dataType === "unsigned") {
-          res =
-            helper.getWord(dataBuffer[index++], dataBuffer[index++]) * scalar;
-        } else if (length === 2 && dataType === "signed") {
-          res =
-            helper.signed16(dataBuffer[index++], dataBuffer[index++]) * scalar;
-        } else if (length === 2 && dataType === "decimal") {
-          res =
-            helper.getWord(dataBuffer[index++], dataBuffer[index++]) * scalar;
+        } else if (format === "bool") {
+          res = dataBuffer[index++] > 0;
+        } else if (signed) {
+          // If the data is signed parse the data
+          let temp = "";
+          // Create the binary string
+          for (let i = 0; i < parseInt(format); i++) {
+            temp = dataBuffer[index++].toString(2) + temp;
+          }
+          res = helper.toSigned(temp);
+        } else if (format === "IEE Float") {
+          console.log("Not Implimented");
+        } else {
+          let temp = "";
+          // Create the binary string
+          for (let i = 0; i < parseInt(format); i++) {
+            temp = dataBuffer[index++].toString(2) + temp;
+          }
+          res = parseInt(temp, 2);
+        }
+        // Parse the enum value
+        if (isEnum) {
+          res = helper.parseEnum(enumVals, res);
+        } else {
+          res *= scalar;
         }
         resObj[name] = res;
       }
@@ -126,15 +157,6 @@ function handleTransmission(data) {
         room: 1,
       });
     });
-    //check to see if addresses have been found & POST the data accordingly
-    // if (bms.check(address, ID, dataBuffer)) {
-    // } else if (gps.check(address, ID, dataBuffer)) {
-    // } else if (imu.check(address, ID, dataBuffer)) {
-    // } else if (proton1.check(address, ID, dataBuffer)) {
-    // } else if (mitsubaF0.check(address, ID, dataBuffer)) {
-    // } else if (mitsubaF1.check(address, ID, dataBuffer)) {
-    // } else if (mitsubaF2.check(address, ID, dataBuffer)) {
-    // }
   }
 }
 

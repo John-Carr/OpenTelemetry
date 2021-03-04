@@ -86,20 +86,20 @@ function ItemOptionsModal(props) {
   };
   const addEnumVal = () => {
     let newArr = [
-      ...props.item.enum,
-      { num: props.item.enum.length, name: "" },
+      ...props.item.enumVals,
+      { num: props.item.enumVals.length, name: "" },
     ];
-    props.callback("enum", newArr, props.index);
+    props.callback("enumVals", newArr, props.index);
   };
   const changeEnumVal = (e) => {
-    let newArr = [...props.item.enum];
+    let newArr = [...props.item.enumVals];
     newArr[e.target.dataset.idx][e.target.dataset.nme] = e.target.value;
-    props.callback("enum", newArr, props.index);
+    props.callback("enumVals", newArr, props.index);
   };
   const removeEnumVal = (e) => {
-    let newArr = [...props.item.enum];
+    let newArr = [...props.item.enumVals];
     newArr.splice(e.target.dataset.idx, 1);
-    props.callback("enum", newArr, props.index);
+    props.callback("enumVals", newArr, props.index);
   };
   // Render stuff
   return (
@@ -179,7 +179,7 @@ function ItemOptionsModal(props) {
               </Form.Row>
             )}
             {props.item.isEnum &&
-              props.item.enum.map((item, i) => (
+              props.item.enumVals.map((item, i) => (
                 <Form.Row key={i}>
                   <Col>
                     <Form.Control

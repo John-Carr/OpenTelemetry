@@ -24,7 +24,6 @@ const formats = [
   "8",
   "16",
   "32",
-  "64",
   "IEEE Float",
 ];
 // React page
@@ -45,7 +44,7 @@ function ItemForm(props) {
     scalar: 1,
     mask: [0xff, 0xff],
     isEnum: false,
-    enum: [],
+    enumVals: [],
     bytes: 0,
   };
   // Form state handler
@@ -70,8 +69,8 @@ function ItemForm(props) {
   };
   const handleOptions = (name, value, i) => {
     const updatedForm = { ...form };
-    if (name === "enum") {
-      updatedForm.values[i].enum = value;
+    if (name === "enumVals") {
+      updatedForm.values[i].enumVals = value;
     } else {
       updatedForm.values[i][name] = value;
     }

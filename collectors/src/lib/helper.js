@@ -91,13 +91,25 @@ exports.signed16 = function signed16(top, bottom) {
  * @param {String} binary string representation of the twos compliment number
  * @return {Number} The parsed number
  */
-exports.signed = function signed(binary) {
+exports.toSigned = function toSigned(binary) {
   while (binary.length <= 32) {
     binary = binary[0] + binary;
   }
   return ~~parseInt(binary, 2);
 };
-
+/**
+ *
+ * @param {Array} arr Array of values to search through
+ * @param {Number} num Number to search for
+ * @return The string equivalent
+ */
+exports.parseEnum = function parseEnum(arr, num) {
+  let res = arr.find((item) => {
+    item.num === num;
+  });
+  if (res) return res.name;
+  else return "undefined";
+};
 /**
  * If condition is true then run callback. Always return condition
  *
