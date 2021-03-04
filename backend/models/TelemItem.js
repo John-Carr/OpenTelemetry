@@ -3,6 +3,11 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const TelemSchema = new Schema({
+  id: {
+    type: String,
+    required: false,
+    unique: true,
+  },
   name: {
     type: String,
     required: true,
@@ -11,14 +16,12 @@ const TelemSchema = new Schema({
     type: String,
     required: true,
   },
+  iso: {
+    type: String,
+  },
   values: {
     type: Array,
     required: true,
-  },
-  decode_id: {
-    type: String,
-    required: false,
-    unique: true,
   },
   created_at: {
     type: Date,

@@ -6,18 +6,19 @@ router
   .route("/:id?/:decode?")
   .all()
   .post((req, res) => {
-    const { name, desc, values, decodeId } = req.body;
-    if (!name || desc || values || decodeId) {
-      res.status(400);
+    const { name, description, values, id } = req.body;
+    if (!(name || description || values || id)) {
+      res.status(400).json({
+        data: null,
+        success: false,
+        msg: "Missing fields",
+      });
       return;
     }
     TelemItem.findOne({ name: name }).then((item) => {
       if (!item) {
         const newItem = new TelemItem({
-          name: name,
-          description: desc,
-          values: values,
-          decode_id: decodeId,
+          ...req.body,
         });
         newItem
           .save()

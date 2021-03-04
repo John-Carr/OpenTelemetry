@@ -89,7 +89,6 @@ function ItemOptionsModal(props) {
       ...props.item.enum,
       { num: props.item.enum.length, name: "" },
     ];
-    console.log(newArr);
     props.callback("enum", newArr, props.index);
   };
   const changeEnumVal = (e) => {
@@ -123,27 +122,40 @@ function ItemOptionsModal(props) {
         </Modal.Header>
         <Modal.Body>
           <Form.Row>
-            <Form.Label>Number of bytes</Form.Label>
-            <Form.Control
-              data-nme="bytes"
-              type="number"
-              value={props.item.bytes}
-              placeholder="2"
-              onChange={(e) =>
-                props.callback(
-                  e.target.dataset.nme,
-                  e.target.value,
-                  props.index
-                )
-              }
-              disabled={
-                props.item.format === "unaligned bool" ||
-                props.item.format !== "unaligned"
-              }
-            />
+            <Col>
+              <Form.Label>Number of bytes</Form.Label>
+
+              <Form.Control
+                data-nme="bytes"
+                type="number"
+                value={props.item.bytes}
+                placeholder="2"
+                onChange={(e) =>
+                  props.callback(
+                    e.target.dataset.nme,
+                    e.target.value,
+                    props.index
+                  )
+                }
+                disabled={
+                  props.item.format === "unaligned bool" ||
+                  props.item.format !== "unaligned"
+                }
+              />
+            </Col>
+            <Col>
+              <Form.Label>Padded</Form.Label>
+              <Form.Check
+                type="checkbox"
+                checked={props.item.padded}
+                onChange={(e) => {
+                  props.callback("padded", e.target.checked, props.index);
+                }}
+              />
+            </Col>
           </Form.Row>
           <Form.Row>
-            {props.item.format.search("unaligned") >= 0 && (
+            {props.item.format && props.item.format.search("unaligned") >= 0 && (
               <>
                 <Form.Label>
                   Masks
@@ -157,7 +169,11 @@ function ItemOptionsModal(props) {
             {props.item.isEnum && (
               <Form.Row>
                 <Form.Label>Enum Values</Form.Label>
-                <Button variant="success" onClick={addEnumVal}>
+                <Button
+                  variant="success"
+                  onClick={addEnumVal}
+                  className="justify-content-right"
+                >
                   Add Enum Value
                 </Button>
               </Form.Row>

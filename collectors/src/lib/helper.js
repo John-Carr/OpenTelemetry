@@ -85,6 +85,18 @@ exports.signed16 = function signed16(top, bottom) {
 
   return x;
 };
+/**
+ * converts a binary number from a string to a twos compliment number
+ *
+ * @param {String} binary string representation of the twos compliment number
+ * @return {Number} The parsed number
+ */
+exports.signed = function signed(binary) {
+  while (binary.length <= 32) {
+    binary = binary[0] + binary;
+  }
+  return ~~parseInt(binary, 2);
+};
 
 /**
  * If condition is true then run callback. Always return condition

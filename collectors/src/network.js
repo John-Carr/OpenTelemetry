@@ -60,7 +60,9 @@ function handleTransmission(data) {
             latitude: helper.DDMtoDD(latitude),
             speed: speed,
             heading: heading,
+            room: 1,
           });
+          // Return because we are done dealing with the data
           return;
         }
       }

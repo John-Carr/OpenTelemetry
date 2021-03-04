@@ -94,7 +94,9 @@ function ItemForm(props) {
       updatedForm.iso = e.target.dataset.fmt;
       switch (e.target.dataset.fmt) {
         case "GPS":
-          updatedForm.values = [{ name: "latitude" }, { name: "longitude" }];
+          updatedForm.values = [{ ...blankValue }, { ...blankValue }];
+          updatedForm.values[0].name = "latitude";
+          updatedForm.values[1].name = "longitude";
           break;
         default:
           console.log("Err");
@@ -118,6 +120,7 @@ function ItemForm(props) {
         updatedForm.values[e.target.dataset.idx].bytes = 1;
         updatedForm.values[e.target.dataset.idx].isEnum = false;
         updatedForm.values[e.target.dataset.idx].signed = false;
+        updatedForm.values[e.target.dataset.idx].mask = [1, 0];
       }
       // eslint-disable-next-line
       if (e.target.value == parseInt(e.target.value)) {
@@ -126,6 +129,7 @@ function ItemForm(props) {
       }
       if (e.target.value === "unaligned") {
         updatedForm.values[e.target.dataset.idx].bytes = 1;
+        updatedForm.values[e.target.dataset.idx].mask = [0xff, 0xff];
       }
     }
     updatedForm.values[e.target.dataset.idx][e.target.dataset.nme] =
@@ -141,6 +145,7 @@ function ItemForm(props) {
     updatedForm.values.splice(e.target.dataset.idx, 1);
     setForm(updatedForm);
   };
+
   const submitForm = (e) => {
     e.preventDefault();
     // Create item to send to backend
