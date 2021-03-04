@@ -153,21 +153,32 @@ function ItemForm(props) {
       name: form.name,
       description: form.description,
       iso: form.iso,
-      values: form.values,
+      values: form.values.filter((item) => {
+        // filter out any items with no names (they were prob in error)
+        return item.name !== ""; // TODO: This should be used in form validation rather than doing it behind user's back
+      }),
     };
-    // Send to backend
-    axios
-      .post("api/telemItem", item)
-      .then((res) => {
-        if (res.data.success) {
-          setForm({ ...blankForm });
-        } else {
-          // set alert
+    if (props.item) {
+      axios.put("api/telemItem", item).then((res) => {
+        if (props.callback) {
+          props.callback(res.data.data);
         }
-      })
-      .catch((err) => {
-        console.log(err.response);
       });
+    } else {
+      // Send to backend
+      axios
+        .post("api/telemItem", item)
+        .then((res) => {
+          if (res.data.success) {
+            setForm({ ...blankForm });
+          } else {
+            // set alert
+          }
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
+    }
   };
   return (
     <Containter>

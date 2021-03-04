@@ -67,6 +67,19 @@ router
         .catch((err) => res.status(404).json({ success: false }));
     }
   })
+  .put((req, res) => {
+    const { id } = req.body;
+    TelemItem.findOneAndUpdate({ id: id }, req.body, {
+      new: true,
+      useFindAndModify: false,
+    }).then((item) => {
+      res.status(200).json({
+        data: item,
+        success: true,
+        msg: "Vehicle updated successfully",
+      });
+    });
+  })
   .delete((req, res) => {
     if (req.params.id) {
       TelemItem.findByIdAndDelete(req.params.id)

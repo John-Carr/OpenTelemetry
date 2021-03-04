@@ -18,7 +18,7 @@ function Home() {
         <Card as="a" href={"/create-telem"} style={{ cursor: "pointer" }}>
           <Card.Body>Create new telemetry item</Card.Body>
         </Card>
-        <Card as="a" href={"/create-telem"} style={{ cursor: "pointer" }}>
+        <Card as="a" href={"/view-telem"} style={{ cursor: "pointer" }}>
           <Card.Body>Go to existing telemetry items</Card.Body>
         </Card>
       </CardDeck>
