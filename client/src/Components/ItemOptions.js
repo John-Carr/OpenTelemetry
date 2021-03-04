@@ -11,27 +11,35 @@ function ItemOptionsModal(props) {
 
   // Display state
   const handleCheck = (e) => {
-    let updatedArray;
-    // handle if lsb
-    if (updatedArray.length > 1) {
-      if (updatedArray.length === parseInt(e.target.dataset.idx) + 1) {
-        updatedArray[e.target.dataset.idx] =
-          updatedArray[e.target.dataset.idx] ^ (0xff << e.target.dataset.bit);
-        updatedArray[e.target.dataset.idx] =
-          updatedArray[e.target.dataset.idx] & 0xff;
-      } else {
-        updatedArray[e.target.dataset.idx] =
-          updatedArray[e.target.dataset.idx] ^
-          (0xff >> (7 - e.target.dataset.bit));
-        updatedArray[e.target.dataset.idx] =
-          updatedArray[e.target.dataset.idx] & 0xff;
-      }
-    } else {
+    let updatedArray = [...props.item.mask];
+    if (props.item.format.search("bool") >= 0) {
       updatedArray[e.target.dataset.idx] =
         updatedArray[e.target.dataset.idx] ^ (1 << e.target.dataset.bit);
       updatedArray[e.target.dataset.idx] =
-        updatedArray[e.target.dataset.idx] & 0xff;
+        updatedArray[e.target.dataset.idx] & (1 << e.target.dataset.bit);
+    } else {
+      // handle if lsb
+      if (updatedArray.length > 1) {
+        if (updatedArray.length === parseInt(e.target.dataset.idx) + 1) {
+          updatedArray[e.target.dataset.idx] =
+            updatedArray[e.target.dataset.idx] ^ (0xff << e.target.dataset.bit);
+          updatedArray[e.target.dataset.idx] =
+            updatedArray[e.target.dataset.idx] & 0xff;
+        } else {
+          updatedArray[e.target.dataset.idx] =
+            updatedArray[e.target.dataset.idx] ^
+            (0xff >> (7 - e.target.dataset.bit));
+          updatedArray[e.target.dataset.idx] =
+            updatedArray[e.target.dataset.idx] & 0xff;
+        }
+      } else {
+        updatedArray[e.target.dataset.idx] =
+          updatedArray[e.target.dataset.idx] ^ (1 << e.target.dataset.bit);
+        updatedArray[e.target.dataset.idx] =
+          updatedArray[e.target.dataset.idx] & 0xff;
+      }
     }
+    props.callback("mask", updatedArray, props.index);
   };
   const makeChecks = (i, mask) => {
     let row = [];
@@ -77,35 +85,22 @@ function ItemOptionsModal(props) {
     return stuff;
   };
   const addEnumVal = () => {
-    console.log("Bed Time");
+    let newArr = [
+      ...props.item.enum,
+      { num: props.item.enum.length, name: "" },
+    ];
+    console.log(newArr);
+    props.callback("enum", newArr, props.index);
   };
-  const handleEnumField = (bytes) => {
-    let stuff = [];
-    stuff.push(
-      <Form.Row>
-        <Form.Label>Enum Values</Form.Label>
-        <Button variant="success" onClick={addEnumVal}>
-          Add Enum Value
-        </Button>
-      </Form.Row>
-    );
-    stuff.push();
-    for (let i = 0; i < 2 ** bytes; i++) {
-      stuff.push(
-        <Form.Row>
-          <Col sm="auto">
-            <Form.Label>{i}</Form.Label>
-          </Col>
-          <Col>
-            <Form.Control type="text" data-nme="name" />
-          </Col>
-          <Col>
-            <Form.Control type="text" data-nme="name" />
-          </Col>
-        </Form.Row>
-      );
-    }
-    return stuff;
+  const changeEnumVal = (e) => {
+    let newArr = [...props.item.enum];
+    newArr[e.target.dataset.idx][e.target.dataset.nme] = e.target.value;
+    props.callback("enum", newArr, props.index);
+  };
+  const removeEnumVal = (e) => {
+    let newArr = [...props.item.enum];
+    newArr.splice(e.target.dataset.idx, 1);
+    props.callback("enum", newArr, props.index);
   };
   // Render stuff
   return (
@@ -159,7 +154,46 @@ function ItemOptionsModal(props) {
             )}
           </Form.Row>
           <Form.Row>
-            {props.item.isEnum && handleEnumField(props.item.bytes)}
+            {props.item.isEnum && (
+              <Form.Row>
+                <Form.Label>Enum Values</Form.Label>
+                <Button variant="success" onClick={addEnumVal}>
+                  Add Enum Value
+                </Button>
+              </Form.Row>
+            )}
+            {props.item.isEnum &&
+              props.item.enum.map((item, i) => (
+                <Form.Row key={i}>
+                  <Col>
+                    <Form.Control
+                      type="text"
+                      data-nme="num"
+                      data-idx={i}
+                      value={item.num}
+                      onChange={changeEnumVal}
+                    />
+                  </Col>
+                  <Col>
+                    <Form.Control
+                      type="text"
+                      data-nme="name"
+                      data-idx={i}
+                      value={item.name}
+                      onChange={changeEnumVal}
+                    />
+                  </Col>
+                  <Col>
+                    <Button
+                      data-idx={i}
+                      variant="danger"
+                      onClick={removeEnumVal}
+                    >
+                      Delete
+                    </Button>
+                  </Col>
+                </Form.Row>
+              ))}
           </Form.Row>
         </Modal.Body>
       </Modal>

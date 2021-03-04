@@ -70,7 +70,11 @@ function ItemForm(props) {
   };
   const handleOptions = (name, value, i) => {
     const updatedForm = { ...form };
-    updatedForm.values[i][name] = value;
+    if (name === "enum") {
+      updatedForm.values[i].enum = value;
+    } else {
+      updatedForm.values[i][name] = value;
+    }
     setForm(updatedForm);
   };
   const handleDrop = (newArr) => {
