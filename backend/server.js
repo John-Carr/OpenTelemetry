@@ -24,7 +24,7 @@ mongoose
 // Routes
 app.use("/api/telemItem", require("./routes/api/telemItem"));
 app.use("/api/vehicle", require("./routes/api/vehicle"));
-
+app.use("/api/views", require("./routes/api/views"));
 // Socket Namespaces
 const live = io.of("/live");
 

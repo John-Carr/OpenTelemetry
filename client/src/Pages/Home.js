@@ -1,6 +1,7 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
 import CardDeck from "react-bootstrap/CardDeck";
+import CreateViewSelect from "./../Components/Forms/CreateViewSelect";
 
 function Home() {
   return (
@@ -20,6 +21,17 @@ function Home() {
         </Card>
         <Card as="a" href={"/view-telem"} style={{ cursor: "pointer" }}>
           <Card.Body>Go to existing telemetry items</Card.Body>
+        </Card>
+      </CardDeck>
+      <br />
+      <CardDeck>
+        <Card>
+          <Card.Body>
+            <CreateViewSelect />
+          </Card.Body>
+        </Card>
+        <Card as="a" href={"/views"} style={{ cursor: "pointer" }}>
+          <Card.Body>See available views</Card.Body>
         </Card>
       </CardDeck>
       <br />

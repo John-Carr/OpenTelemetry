@@ -1,7 +1,8 @@
 const express = require("express");
+const { rawListeners } = require("../../models/Vehicle");
 const router = express.Router();
 const Vehicle = require("../../models/Vehicle");
-
+const TelemItem = require("../../models/TelemItem");
 router
   .route("/:id?/:decode?")
   .all()
@@ -43,9 +44,21 @@ router
   })
   .get((req, res) => {
     if (req.params.id && req.params.decode) {
-      Vehicle.findOne({ id: req.params.decode }).then((item) => {
-        res.status(200).json(item);
-      });
+      if (req.query.items) {
+        Vehicle.findOne({ id: req.params.decode }).then((item) => {
+          let telemItems = [];
+          for (const val in item.telem_items) {
+            telemItems.push(item.telem_items[val].deviceKey);
+          }
+          TelemItem.find({ id: { $in: telemItems } }).then((items) => {
+            res.status(200).json({ success: true, msg: "", data: items });
+          });
+        });
+      } else {
+        Vehicle.findOne({ id: req.params.decode }).then((item) => {
+          res.status(200).json(item);
+        });
+      }
     } else if (req.params.id) {
       Vehicle.findById(req.params.id)
         .sort({ name: 1 })

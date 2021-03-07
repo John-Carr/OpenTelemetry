@@ -3,7 +3,8 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-// import { StateProvider } from "./store";
+import ".\\styles\\grid-layout.css";
+import ".\\styles\\resize.css";
 
 ReactDOM.render(
   <React.StrictMode>

@@ -7,7 +7,7 @@
         "start": "concurrently \"cd backend && npm start\" \"cd client && npm start\"",
         "dev": "concurrently \"cd backend && npm start\" \"cd client && npm start\" \"cd test-client && npm start\"",
         "test": "cd backend && npm test",
-        "install-all": "npm i && cd backend && npm i && cd client && npm i"
+        "install": "npm i && cd backend && npm i && cd client && npm i"
     },
     "keywords": [],
     "author": "",

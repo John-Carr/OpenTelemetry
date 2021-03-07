@@ -12,6 +12,7 @@ import Sessions from "./Pages/Sessions";
 import LiveTelem from "./Pages/LiveTelem";
 import ViewVehicles from "./Pages/ViewVehicles";
 import ViewItems from "./Pages/ViewItems";
+import CreateView from "./Pages/CreateView";
 /*
  * Components
  */
@@ -30,6 +31,7 @@ function App() {
             <Route exact path="/view-vehicles" component={ViewVehicles} />
             <Route exact path="/create-telem" component={ItemForm} />
             <Route exact path="/view-telem" component={ViewItems} />
+            <Route exact path="/views/:vehicle" component={CreateView} />
             <Route exact path="/sessions" component={Sessions} />
             <Route exact path="/live/:vehicle" component={LiveTelem} />
           </Switch>
