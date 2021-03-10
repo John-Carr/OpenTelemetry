@@ -47,11 +47,24 @@ router
       if (req.query.items) {
         Vehicle.findOne({ id: req.params.decode }).then((item) => {
           let telemItems = [];
-          for (const val in item.telem_items) {
+          for (let val in item.telem_items) {
             telemItems.push(item.telem_items[val].deviceKey);
           }
           TelemItem.find({ id: { $in: telemItems } }).then((items) => {
-            res.status(200).json({ success: true, msg: "", data: items });
+            // match The name with the device
+            for (const device in items) {
+              for (const instance in item.telem_items) {
+                if (
+                  parseInt(items[device].id) ===
+                  parseInt(item.telem_items[instance].deviceKey)
+                ) {
+                  item.telem_items[instance].values = items[device].values;
+                }
+              }
+            }
+            res
+              .status(200)
+              .json({ success: true, msg: "", data: item.telem_items });
           });
         });
       } else {

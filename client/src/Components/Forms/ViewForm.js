@@ -61,6 +61,7 @@ function EditModal(props) {
       for (let property in options[val].values) {
         if (options[val].values[property].isChecked) {
           // add to list to pass to main view
+          // console.log(checkedItems);
           checkedItems.push([options[val].name, options[val].values[property]]);
           // clear the states so that the next time is independent of last
           options[val].values[property].isChecked = false;
@@ -69,6 +70,7 @@ function EditModal(props) {
         }
       }
     }
+    console.log(checkedItems);
     props.onAdd(checkedItems);
     setShow(false);
   };
