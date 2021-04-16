@@ -30,7 +30,6 @@ router
             });
           });
       } else {
-        console.log("Here");
         res.status(400).json({
           data: null,
           success: true,

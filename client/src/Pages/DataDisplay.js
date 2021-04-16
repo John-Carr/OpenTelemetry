@@ -4,6 +4,8 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import Chart from "react-apexcharts";
 import Status from "./../Components/DataViews/Status";
 import ViewModal from "./../Components/Forms/ViewForm";
+import Button from "react-bootstrap/esm/Button";
+import { useParams } from "react-router-dom";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 /**
  *
@@ -18,6 +20,8 @@ const defaultOptions = {
   options: {
     chart: {
       id: "basic-line",
+      toolbar: { show: true },
+      zoom: { enabled: true },
     },
     xaxis: {
       categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999],
@@ -26,7 +30,11 @@ const defaultOptions = {
       text: "Battery Voltage",
       align: "left",
     },
+    tooltip: {
+      enabled: true,
+    },
   },
+
   info: {},
 };
 const previewSeries = [
@@ -40,10 +48,11 @@ const previewSeries = [
     data: [75, 56, 50, 52, 60, 63, 55, 40],
   },
 ];
-
+const edit = true;
 function DataDisplay(props) {
+  const { vehicle, name } = useParams();
   // Layout and graphs are linked by i
-  const [layouts, setLayouts] = useState([]);
+  const [layouts, setLayouts] = useState({ lg: [], md: [] });
   /**
    * graphs[n] = {type: String options: {values: [], id: []}}
    */
@@ -52,12 +61,12 @@ function DataDisplay(props) {
   const [cols, setCols] = useState();
   const addItem = (itemsToAdd) => {
     // copy states
-    let newLayouts = [...layouts];
+    let newLayouts = { ...layouts };
     let newGraphs = [...graphs];
     // Create new objects to add to state
     let newLayout = {
       i: counter.toString(),
-      x: (newLayouts.length * 2) % (cols || 12),
+      x: (newLayouts.lg.length * 2) % (cols || 12), // TODO update this to support more screens
       y: Infinity, // puts it at the bottom
       w: 4,
       h: 5,
@@ -67,7 +76,6 @@ function DataDisplay(props) {
     let title = [];
     let labels = [];
     for (let val in itemsToAdd) {
-      console.log(val);
       // append what will be series data names
       labels.push({
         name: itemsToAdd[val][1].name,
@@ -90,14 +98,41 @@ function DataDisplay(props) {
     // Set the info for the chart
     newGraphOptions.info.series = labels;
     newGraphOptions.info.i = counter.toString();
-    console.log(newGraphOptions);
     // Update the temp arrays
     newGraphs.push(newGraphOptions);
-    newLayouts.push(newLayout);
+    newLayouts.lg.push(newLayout);
     // Update the state
     setCounter((c) => c + 1);
     setLayouts(newLayouts);
     setGraphs(newGraphs);
+  };
+  const handleRemove = (e) => {
+    const updatedGraphs = [...graphs];
+    const updatedLayout = { ...layouts };
+    // remove from graphs list
+    for (const el in updatedGraphs) {
+      const element = updatedGraphs[el];
+      // check to see if the indexes match if so we found the one we want to remove
+      if (element.info.i === e.target.dataset.idx) {
+        updatedGraphs.splice(el, 1);
+      }
+    }
+    // go through the layouts and remove refrences to the graph
+    for (const el in updatedLayout) {
+      if (Object.hasOwnProperty.call(updatedLayout, el)) {
+        const element = updatedLayout[el];
+        for (let j = 0; j < element.length; j++) {
+          if (element[j].i === e.target.dataset.idx) {
+            // remove from object list
+            updatedLayout[el].splice(j, 1);
+            // only ever remove one
+            break;
+          }
+        }
+      }
+    }
+    setGraphs(updatedGraphs);
+    setLayouts(updatedLayout);
   };
   const generateGraph = (el) => {
     // check if the chart is a status or is a time series
@@ -116,28 +151,66 @@ function DataDisplay(props) {
         />
       );
     } else {
-      return <Chart options={el.options} series={el.info.series} type="line" />;
+      el.options.chart.toolbar.show = !edit;
+      el.options.tooltip.enabled = !edit;
+      el.options.chart.zoom.enabled = !edit;
+      return (
+        <Chart
+          height="100%"
+          options={el.options}
+          series={el.info.series}
+          type="line"
+        />
+      );
     }
   };
   const onBreakpointChange = (breakpoint, cols) => {
     setCols(cols);
   };
+  const handleSave = () => {
+    console.log(vehicle);
+    console.log(name);
+    console.log(layouts);
+    console.log(graphs);
+  };
   return (
     <>
       <ViewModal onAdd={addItem} />
+      <Button onClick={handleSave}>Save</Button>
       <ResponsiveGridLayout
         className="layout"
+        isDraggable={edit}
+        isResizable={edit}
         rowHeight={50}
         layouts={layouts}
         onLayoutChange={(curr, all) => {
-          setLayouts(curr);
+          setLayouts(all);
         }}
         onBreakpointChange={onBreakpointChange}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
       >
         {graphs.map((el) => (
-          <div key={el.info.i}>{generateGraph(el)}</div>
+          <div style={edit ? { border: "dashed" } : null} key={el.info.i}>
+            {edit && (
+              <span
+                data-idx={el.info.i}
+                className="remove"
+                onClick={handleRemove}
+                style={{
+                  cursor: "pointer",
+                  marginRight: "1rem",
+                  right: 0,
+                  top: 0,
+                  position: "absolute",
+                  zIndex: 100,
+                }}
+              >
+                x
+              </span>
+            )}
+            {generateGraph(el)}
+          </div>
         ))}
       </ResponsiveGridLayout>
     </>

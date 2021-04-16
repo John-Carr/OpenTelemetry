@@ -13,10 +13,13 @@ const ViewSchema = new Schema({
     required: true,
     ref: "vehicle",
   },
-  data: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: "telemItem",
+  graphs: {
+    type: Array,
+    require: true,
+  },
+  layouts: {
+    type: Object,
+    require: true,
   },
   created_at: {
     type: Date,

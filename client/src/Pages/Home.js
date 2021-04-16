@@ -25,11 +25,7 @@ function Home() {
       </CardDeck>
       <br />
       <CardDeck>
-        <Card>
-          <Card.Body>
-            <CreateViewSelect />
-          </Card.Body>
-        </Card>
+        <CreateViewSelect />
         <Card as="a" href={"/views"} style={{ cursor: "pointer" }}>
           <Card.Body>See available views</Card.Body>
         </Card>

@@ -70,7 +70,6 @@ function EditModal(props) {
         }
       }
     }
-    console.log(checkedItems);
     props.onAdd(checkedItems);
     setShow(false);
   };

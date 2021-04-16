@@ -31,9 +31,9 @@ function App() {
             <Route exact path="/view-vehicles" component={ViewVehicles} />
             <Route exact path="/create-telem" component={ItemForm} />
             <Route exact path="/view-telem" component={ViewItems} />
-            <Route exact path="/views/:vehicle" component={DataDisplay} />
+            <Route exact path="/views/:vehicle/:name" component={DataDisplay} />
             <Route exact path="/sessions" component={Sessions} />
-            <Route exact path="/live/:vehicle" component={LiveTelem} />
+            <Route exact path="/live/:vehicle/:name" component={LiveTelem} />
           </Switch>
         </>
       </Router>
