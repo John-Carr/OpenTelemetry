@@ -35,21 +35,36 @@ function EditModal(props) {
   }, [vehicle]);
   const handleCheck = (e) => {
     let newOptions = [...options];
-    let checkedItem =
-      newOptions[e.target.dataset.idx].values[e.target.dataset.idxval];
-    checkedItem.isChecked = e.target.checked;
-    if (e.target.checked) {
-      setCounter((c) => c + 1);
-      if (checkedItem.isEnum || checkedItem.format.search("bool") >= 0) {
-        setType("status");
+    if (e.target.dataset.nme === "GPS") {
+      let checkedItem = newOptions[e.target.dataset.idx];
+      checkedItem.isChecked = e.target.checked;
+      if (e.target.checked) {
+        setCounter((c) => c + 1);
+        setType("GPS");
       } else {
-        setType("num");
+        let tempCount = counter - 1;
+        setCounter(tempCount);
+        if (tempCount === 0) {
+          setType("");
+        }
       }
     } else {
-      let tempCount = counter - 1;
-      setCounter(tempCount);
-      if (tempCount === 0) {
-        setType("");
+      let checkedItem =
+        newOptions[e.target.dataset.idx].values[e.target.dataset.idxval];
+      checkedItem.isChecked = e.target.checked;
+      if (e.target.checked) {
+        setCounter((c) => c + 1);
+        if (checkedItem.isEnum || checkedItem.format.search("bool") >= 0) {
+          setType("status");
+        } else {
+          setType("num");
+        }
+      } else {
+        let tempCount = counter - 1;
+        setCounter(tempCount);
+        if (tempCount === 0) {
+          setType("");
+        }
       }
     }
     setOptions(newOptions);
@@ -61,7 +76,6 @@ function EditModal(props) {
       for (let property in options[val].values) {
         if (options[val].values[property].isChecked) {
           // add to list to pass to main view
-          // console.log(checkedItems);
           checkedItems.push([options[val].name, options[val].values[property]]);
           // clear the states so that the next time is independent of last
           options[val].values[property].isChecked = false;
@@ -85,42 +99,60 @@ function EditModal(props) {
           <Modal.Title>Choose Items to add</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {options.map((item, i) => (
-            <Table striped bordered hover key={i}>
-              <thead>
-                <tr>
-                  <td colSpan="3">{item.name}</td>
-                </tr>
-              </thead>
-              <tbody>
-                {item.values.map((val, j) => {
-                  let temp = "";
-                  if (val.isEnum || val.format.search("bool") >= 0) {
-                    temp = "status";
-                  } else {
-                    temp = "num";
-                  }
-                  return (
-                    <tr key={j}>
-                      <td>{val.name}</td>
+          {options.map((item, i) => {
+            return (
+              <Table striped bordered hover key={i}>
+                <thead>
+                  <tr>
+                    <td colSpan="3">{item.name}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {item.device === "GPS" ? (
+                    <tr>
+                      <td>{item.name}</td>
                       <td>
                         <Form.Check
                           data-idx={i}
-                          data-idxval={j}
-                          data-nme={val.name}
+                          data-nme="GPS"
                           type="checkbox"
-                          checked={val.isChecked}
+                          checked={item.isChecked}
                           onChange={handleCheck}
-                          disabled={!(temp === type || type === "")}
+                          disabled={!("GPS" === type || type === "")}
                         />
                       </td>
-                      <td>{val.format}</td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-          ))}
+                  ) : (
+                    item.values.map((val, j) => {
+                      let temp = "";
+                      if (val.isEnum || val.format.search("bool") >= 0) {
+                        temp = "status";
+                      } else {
+                        temp = "num";
+                      }
+                      return (
+                        <tr key={j}>
+                          <td>{val.name}</td>
+                          <td>
+                            <Form.Check
+                              data-idx={i}
+                              data-idxval={j}
+                              data-nme={val.name}
+                              type="checkbox"
+                              checked={val.isChecked}
+                              onChange={handleCheck}
+                              disabled={!(temp === type || type === "")}
+                            />
+                          </td>
+                          <td>{val.format}</td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </Table>
+            );
+          })}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

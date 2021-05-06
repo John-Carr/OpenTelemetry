@@ -4,8 +4,10 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import Chart from "react-apexcharts";
 import Status from "./../Components/DataViews/Status";
 import ViewModal from "./../Components/Forms/ViewForm";
-import Button from "react-bootstrap/esm/Button";
+import Button from "react-bootstrap/Button";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import GPS from "../Components/DataViews/GPS";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 /**
  *
@@ -150,7 +152,7 @@ function DataDisplay(props) {
           }}
         />
       );
-    } else {
+    } else if (el.info.type === "time") {
       el.options.chart.toolbar.show = !edit;
       el.options.tooltip.enabled = !edit;
       el.options.chart.zoom.enabled = !edit;
@@ -162,6 +164,8 @@ function DataDisplay(props) {
           type="line"
         />
       );
+    } else if (el.info.type === "GPS") {
+      return <GPS />;
     }
   };
   const onBreakpointChange = (breakpoint, cols) => {
@@ -172,6 +176,13 @@ function DataDisplay(props) {
     console.log(name);
     console.log(layouts);
     console.log(graphs);
+    let item = {
+      graphs: graphs,
+      layouts: layouts,
+      name: name,
+      vehicle: vehicle,
+    };
+    axios.post("/api/views", item);
   };
   return (
     <>

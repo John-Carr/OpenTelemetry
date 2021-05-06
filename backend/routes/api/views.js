@@ -1,15 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const View = require("../../models/View");
+const Vehicle = require("../../models/Vehicle");
 
 router
   .route("/:id?")
   .all()
-  .post((req, res) => {
+  .post(async (req, res) => {
+    let vehicleWid = await Vehicle.findOne({ id: req.body.vehicle });
     View.findOne({ name: req.body.name }).then((item) => {
       if (!item) {
+        let { vehicle, ...used } = req.body;
         const newItem = new View({
-          ...req.body,
+          vehicle: vehicleWid._id,
+          ...used,
         });
         newItem
           .save()
